@@ -1,0 +1,88 @@
+[
+  {
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+      "name": "Администраторы"
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+      "name": "Преподаватели"
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 3,
+    "fields": {
+      "name": "Студенты"
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 4,
+    "fields": {
+      "name": "Родители"
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 1,
+    "fields": {
+      "title": "Английский для начинающих",
+      "description": "Базовый курс английского языка для новичков",
+      "price": "1500.00",
+      "duration_hours": 40,
+      "level": "beginner",
+      "language": "Английский",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 2,
+    "fields": {
+      "title": "Английский для среднего уровня",
+      "description": "Курс для тех, кто уже знает основы английского",
+      "price": "2000.00",
+      "duration_hours": 50,
+      "level": "intermediate",
+      "language": "Английский",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "notifications.notificationtemplate",
+    "pk": 1,
+    "fields": {
+      "name": "lesson_reminder",
+      "title_template": "Напоминание о занятии: {{ lesson.title }}",
+      "message_template": "Занятие '{{ lesson.title }}' начнется {{ lesson.start_time|date:'d.m.Y H:i' }}",
+      "notification_type": "lesson",
+      "channels": "[\"email\", \"push\", \"telegram\", \"whatsapp\"]",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "notifications.notificationtemplate",
+    "pk": 2,
+    "fields": {
+      "name": "payment_reminder",
+      "title_template": "Напоминание об оплате курса",
+      "message_template": "Пожалуйста, не забудьте оплатить курс '{{ course.title }}'",
+      "notification_type": "payment",
+      "channels": "[\"email\", \"push\", \"telegram\", \"whatsapp\"]",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]

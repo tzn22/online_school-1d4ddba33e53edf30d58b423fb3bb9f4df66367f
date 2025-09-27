@@ -1,0 +1,53 @@
+# Core Django (совместимо с Python 3.13)
+Django==4.2.*
+djangorestframework==3.14.*
+djangorestframework-simplejwt==5.3.*
+psycopg2-binary==2.9.*
+
+# Async and background tasks
+celery==5.3.*
+redis==5.0.*
+django-celery-beat==2.5.*
+django-celery-results==2.5.*
+django-redis==5.4.*
+
+# API and serialization
+drf-yasg==1.21.*
+django-filter==23.5
+django-cors-headers==4.3.*
+
+# Environment and configuration
+python-decouple==3.8
+python-dotenv==1.0.*
+
+# File handling
+Pillow==10.2.*
+django-storages==1.14.*
+
+# Communication APIs
+yookassa==3.0.*
+stripe==8.0.*
+
+# Development tools
+django-debug-toolbar==4.3.*
+django-extensions==3.2.*
+
+# Testing
+pytest==8.0.*
+pytest-django==4.7.*
+factory-boy==3.3.*
+
+# WebSockets
+channels==4.0.*
+channels-redis==4.1.*
+
+# Utilities
+requests==2.31.*
+gunicorn==21.2.*
+
+# Documentation
+Sphinx==7.2.*
+sphinx-rtd-theme==2.0.*
+
+# Database
+dj-database-url==2.1.*
