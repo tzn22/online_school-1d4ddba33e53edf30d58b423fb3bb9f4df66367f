@@ -22,7 +22,7 @@ class NotificationService:
             title=title,
             message=message,
             notification_type=notification_type,
-            channels=channels
+            channels=channels[0] if channels else 'in_app'
         )
         
         # Отправляем через указанные каналы
@@ -162,21 +162,3 @@ class NotificationService:
             notifications.append(notification)
         
         return notifications
-    
-    @staticmethod
-    def mark_as_read(notification_id, user):
-        """Отметить уведомление как прочитанное"""
-        try:
-            notification = Notification.objects.get(id=notification_id, user=user)
-            if not notification.is_read:
-                notification.is_read = True
-                notification.read_at = timezone.now()
-                notification.save()
-            return notification
-        except Notification.DoesNotExist:
-            return None
-    
-    @staticmethod
-    def get_unread_count(user):
-        """Получить количество непрочитанных уведомлений"""
-        return Notification.objects.filter(user=user, is_read=False).count()

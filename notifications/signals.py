@@ -1,8 +1,8 @@
-from datetime import timezone
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
 from .models import Notification, NotificationTemplate, UserNotificationSettings, NotificationLog
 from accounts.models import User
 from courses.models import Lesson, Course, Group

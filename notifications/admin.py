@@ -20,11 +20,11 @@ class NotificationTemplateAdmin(admin.ModelAdmin):
 class UserNotificationSettingsAdmin(admin.ModelAdmin):
     list_display = [
         'user', 'email_notifications', 'push_notifications', 
-        'telegram_notifications', 'whatsapp_notifications', 'sms_notifications'
+        'telegram_notifications', 'whatsapp_notifications'
     ]
     list_filter = [
         'email_notifications', 'push_notifications', 
-        'telegram_notifications', 'whatsapp_notifications', 'sms_notifications'
+        'telegram_notifications', 'whatsapp_notifications'
     ]
     search_fields = ['user__username', 'user__email', 'telegram_chat_id']
     readonly_fields = ['created_at', 'updated_at']

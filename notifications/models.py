@@ -325,6 +325,8 @@ class UserNotificationSettings(models.Model):
             self.sms_notifications
         )
 
+# Найди модель NotificationLog и исправи поле title:
+
 class NotificationLog(models.Model):
     """Лог уведомлений"""
     notification = models.ForeignKey(
@@ -340,9 +342,12 @@ class NotificationLog(models.Model):
     )
     title = models.CharField(
         max_length=255,
+        default='Нет заголовка',  # ← ДОБАВИЛИ ЗНАЧЕНИЕ ПО УМОЛЧАНИЮ
         verbose_name=_('Заголовок')
     )
     message = models.TextField(
+        blank=True,
+        default='',  # ← ДОБАВИЛИ ЗНАЧЕНИЕ ПО УМОЛЧАНИЮ
         verbose_name=_('Сообщение')
     )
     notification_type = models.CharField(
