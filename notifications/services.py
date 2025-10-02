@@ -22,7 +22,7 @@ class NotificationService:
             title=title,
             message=message,
             notification_type=notification_type,
-            channel=channels[0] if channels else 'in_app'
+            channels=channels
         )
         
         # Отправляем через указанные каналы
@@ -39,12 +39,17 @@ class NotificationService:
                 elif channel == 'in_app':
                     # In-app уведомление уже создано
                     pass
+                elif channel == 'push':
+                    NotificationService._send_push(user, title, message, notification)
                 
                 # Логируем успешную отправку
                 NotificationLog.objects.create(
                     notification=notification,
-                    channel=channel,
-                    status='sent',
+                    user=user,
+                    title=title,
+                    message=message,
+                    notification_type=notification_type,
+                    channels=[channel],
                     sent_at=timezone.now()
                 )
                 
@@ -53,8 +58,11 @@ class NotificationService:
                 # Логируем ошибку
                 NotificationLog.objects.create(
                     notification=notification,
-                    channel=channel,
-                    status='failed',
+                    user=user,
+                    title=title,
+                    message=message,
+                    notification_type=notification_type,
+                    channels=[channel],
                     error_message=str(e)
                 )
         
@@ -64,8 +72,8 @@ class NotificationService:
     def _send_email(user, title, message, notification):
         """Отправка email уведомления"""
         # Проверяем настройки пользователя
-        settings, created = UserNotificationSettings.objects.get_or_create(user=user)
-        if not settings.email_notifications:
+        settings_obj, created = UserNotificationSettings.objects.get_or_create(user=user)
+        if not settings_obj.email_notifications:
             return
         
         if user.email:
@@ -75,7 +83,7 @@ class NotificationService:
                     message=message,
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
-                    fail_silently=False,
+                    fail_silently=True,
                 )
             except Exception as e:
                 raise Exception(f"Ошибка отправки email: {str(e)}")
@@ -84,8 +92,8 @@ class NotificationService:
     def _send_telegram(user, title, message, notification):
         """Отправка Telegram уведомления"""
         # Проверяем настройки пользователя
-        settings, created = UserNotificationSettings.objects.get_or_create(user=user)
-        if not settings.telegram_notifications or not settings.telegram_chat_id:
+        settings_obj, created = UserNotificationSettings.objects.get_or_create(user=user)
+        if not settings_obj.telegram_notifications or not settings_obj.telegram_chat_id:
             return
         
         # Здесь будет интеграция с Telegram Bot API
@@ -96,8 +104,8 @@ class NotificationService:
     def _send_whatsapp(user, title, message, notification):
         """Отправка WhatsApp уведомления"""
         # Проверяем настройки пользователя
-        settings, created = UserNotificationSettings.objects.get_or_create(user=user)
-        if not settings.whatsapp_notifications or not settings.whatsapp_phone:
+        settings_obj, created = UserNotificationSettings.objects.get_or_create(user=user)
+        if not settings_obj.whatsapp_notifications or not settings_obj.whatsapp_phone:
             return
         
         # Здесь будет интеграция с WhatsApp Business API
@@ -108,13 +116,25 @@ class NotificationService:
     def _send_sms(user, title, message, notification):
         """Отправка SMS уведомления"""
         # Проверяем настройки пользователя
-        settings, created = UserNotificationSettings.objects.get_or_create(user=user)
-        if not settings.sms_notifications or not settings.sms_phone:
+        settings_obj, created = UserNotificationSettings.objects.get_or_create(user=user)
+        if not settings_obj.sms_notifications or not settings_obj.sms_phone:
             return
         
         # Здесь будет интеграция с SMS провайдером
         # Пока заглушка
         logger.info(f"SMS уведомление для {user.username}: {title}")
+    
+    @staticmethod
+    def _send_push(user, title, message, notification):
+        """Отправка push-уведомления"""
+        # Проверяем настройки пользователя
+        settings_obj, created = UserNotificationSettings.objects.get_or_create(user=user)
+        if not settings_obj.push_notifications:
+            return
+        
+        # Здесь будет интеграция с Firebase или другими push-сервисами
+        # Пока заглушка
+        logger.info(f"Push уведомление для {user.username}: {title}")
     
     @staticmethod
     def send_bulk_notification(user_ids=None, roles=None, title=None, message=None, 

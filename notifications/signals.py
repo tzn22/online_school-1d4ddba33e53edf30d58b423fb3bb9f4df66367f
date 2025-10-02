@@ -1,11 +1,11 @@
-from django.db.models.signals import post_save
+from datetime import timezone
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.mail import send_mail
-from django.utils import timezone  
 from django.conf import settings
-from .models import Notification, UserNotificationSettings
+from .models import Notification, NotificationTemplate, UserNotificationSettings, NotificationLog
 from accounts.models import User
-from courses.models import Lesson
+from courses.models import Lesson, Course, Group
 from payments.models import Payment
 
 @receiver(post_save, sender=Notification)
@@ -21,7 +21,7 @@ def send_notification_via_channels(sender, instance, created, **kwargs):
                 title=instance.title,
                 message=instance.message,
                 notification_type=instance.notification_type,
-                channels=[instance.channel]
+                channels=instance.channels
             )
             instance.is_sent = True
             instance.sent_at = timezone.now()
@@ -52,7 +52,7 @@ def notify_lesson_scheduled(sender, instance, created, **kwargs):
                 title='Новое занятие',
                 message=f'Запланировано новое занятие "{instance.title}" на {instance.start_time.strftime("%d.%m.%Y %H:%M")}',
                 notification_type='lesson',
-                channel='in_app'
+                channels=['email', 'in_app']
             )
 
 @receiver(post_save, sender=Payment)
@@ -78,7 +78,7 @@ def notify_payment_status(sender, instance, created, **kwargs):
             title=title,
             message=message,
             notification_type=notification_type,
-            channel='in_app'
+            channels=['email', 'in_app']
         )
 
 @receiver(post_save, sender=User)

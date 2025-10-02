@@ -13,7 +13,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 class NotificationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ['user', 'title', 'message', 'notification_type', 'channel']
+        fields = ['user', 'title', 'message', 'notification_type', 'channels']
     
     def validate(self, attrs):
         # Проверяем, что пользователь существует
@@ -46,6 +46,8 @@ class NotificationLogSerializer(serializers.ModelSerializer):
         model = NotificationLog
         fields = '__all__'
         read_only_fields = ['created_at', 'sent_at']
+
+# === НОВЫЕ СЕРИАЛИЗАТОРЫ ДЛЯ ПРЕПОДАВАТЕЛЯ ===
 
 class BulkNotificationSerializer(serializers.Serializer):
     """Сериализатор для массовой отправки уведомлений"""

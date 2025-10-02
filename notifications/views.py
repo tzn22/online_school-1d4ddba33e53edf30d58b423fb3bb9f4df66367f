@@ -6,27 +6,25 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from django.db import models  # Добавили этот импорт
+from django.db import models
 from .models import Notification, NotificationTemplate, UserNotificationSettings, NotificationLog
 from accounts.models import User
 from .serializers import (
     NotificationSerializer, 
     NotificationCreateSerializer,
-    NotificationTemplateSerializer, 
+    NotificationTemplateSerializer,
     UserNotificationSettingsSerializer,
-    NotificationLogSerializer,
-    BulkNotificationSerializer
+    NotificationLogSerializer
 )
+from .permissions import IsNotificationOwner, IsAdminOrOwner, CanSendBulkNotifications, CanManageNotifications
 from .services import NotificationService
-from .permissions import IsNotificationOwner
-
 
 class NotificationListView(generics.ListAPIView):
     """Список уведомлений пользователя"""
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['notification_type', 'channel', 'is_read']
+    filterset_fields = ['notification_type', 'channels', 'is_read']
     ordering_fields = ['created_at', 'is_read']
     ordering = ['-created_at']
     
@@ -77,10 +75,10 @@ class UserNotificationSettingsView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_object(self):
-        settings, created = UserNotificationSettings.objects.get_or_create(
+        settings_obj, created = UserNotificationSettings.objects.get_or_create(
             user=self.request.user
         )
-        return settings
+        return settings_obj
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -132,10 +130,10 @@ def get_unread_count(request):
     })
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def send_bulk_notification(request):
     """Массовая отправка уведомлений (только для админов)"""
-    serializer = BulkNotificationSerializer(data=request.data)
+    serializer = NotificationCreateSerializer(data=request.data)
     if serializer.is_valid():
         try:
             notifications = NotificationService.send_bulk_notification(
@@ -186,7 +184,7 @@ def send_test_notification(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def notification_statistics(request):
     """Статистика уведомлений (только для админов)"""
     # Общая статистика
@@ -199,7 +197,7 @@ def notification_statistics(request):
     ).order_by('-count')
     
     # Статистика по каналам
-    channel_stats = Notification.objects.values('channel').annotate(
+    channel_stats = Notification.objects.values('channels').annotate(
         count=models.Count('id')
     ).order_by('-count')
     
