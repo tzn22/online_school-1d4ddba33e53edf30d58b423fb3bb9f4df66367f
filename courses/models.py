@@ -20,8 +20,8 @@ class Course(models.Model):
         verbose_name=_('Цена курса')
     )
     duration_hours = models.PositiveIntegerField(
-        verbose_name=_('Длительность курса (часы)'),
-        help_text=_('Общая длительность курса в часах')
+        verbose_name=_('Длительность курса '),
+        help_text=_('Общая длительность курса')
     )
     level = models.CharField(
         max_length=20,
