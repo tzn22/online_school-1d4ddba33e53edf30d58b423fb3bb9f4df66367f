@@ -6,7 +6,6 @@ from django.http import JsonResponse
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from drf_yasg import renderers  # исправлено, рендереры берутся отсюда
 
 # Swagger schema view
 schema_view = get_schema_view(
@@ -25,13 +24,13 @@ schema_view = get_schema_view(
 urlpatterns = [
     # Admin panel
     path('admin/', admin.site.urls),
-    
+
     # API documentation
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger.yaml', schema_view.without_ui(cache_timeout=0, renderer_classes=[renderers.OpenAPIRenderer, renderers.SwaggerYAMLRenderer]), name='schema-yaml'),
-    
+    path('swagger.yaml', schema_view.without_ui(cache_timeout=0), name='schema-yaml'),
+
     # App URLs
     path('api/auth/', include('accounts.urls')),
     path('api/courses/', include('courses.urls')),
@@ -41,7 +40,7 @@ urlpatterns = [
     path('api/feedback/', include('feedback.urls')),
     path('api/crm/', include('crm.urls')),
     path('api/livesmart/', include('livesmart.urls')),
-    
+
     # Health check
     path('health/', lambda request: JsonResponse({'status': 'healthy'})),
     path('', lambda request: JsonResponse({
