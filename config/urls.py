@@ -39,9 +39,7 @@ urlpatterns = [
     path('api/notifications/', include('notifications.urls')),
     path('api/feedback/', include('feedback.urls')),
     path('api/crm/', include('crm.urls')),
-    path('api/admin-panel/', include('admin_panel.urls')),
-    path('api/whatsapp/', include('whatsapp.urls')),
-    path('api/telegram-bot/', include('telegram_bot.urls')),
+    path('api/livesmart/', include('livesmart.urls')),
     
     # Health check
     path('health/', lambda request: JsonResponse({'status': 'healthy'})),
