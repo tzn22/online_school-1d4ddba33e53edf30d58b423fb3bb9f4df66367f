@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'feedback',
     'crm',
     'admin_panel',
+    'livesmart',
 ]
 
 MIDDLEWARE = [
@@ -211,3 +212,8 @@ STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='pk_test_place
 YOOKASSA_SHOP_ID = config('YOOKASSA_SHOP_ID', default='')
 YOOKASSA_SECRET_KEY = config('YOOKASSA_SECRET_KEY', default='')
 YOOKASSA_RETURN_URL = config('YOOKASSA_RETURN_URL', default='http://localhost:3000/payment-success/')
+# LiveSmart settings
+LIVESMART_API_KEY = config('LIVESMART_API_KEY', default='')
+LIVESMART_API_SECRET = config('LIVESMART_API_SECRET', default='')
+LIVESMART_API_URL = config('LIVESMART_API_URL', default='https://api.livesmart.com/v1')
+LIVESMART_RETURN_URL = config('LIVESMART_RETURN_URL', default='https://fluencyclub.fun/meeting-complete/')
