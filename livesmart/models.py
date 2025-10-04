@@ -2,8 +2,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from accounts.models import User
-from courses.models import Lesson, Group
+from datetime import datetime, timedelta
+
+User = settings.AUTH_USER_MODEL
 
 class LiveSmartRoom(models.Model):
     """Комната LiveSmart"""
@@ -15,7 +16,7 @@ class LiveSmartRoom(models.Model):
     ]
     
     lesson = models.OneToOneField(
-        Lesson,
+        'courses.Lesson',
         on_delete=models.CASCADE,
         related_name='livesmart_room',
         verbose_name=_('Занятие')
@@ -53,6 +54,12 @@ class LiveSmartRoom(models.Model):
     recording_url = models.URLField(
         blank=True,
         verbose_name=_('Ссылка на запись')
+    )
+    recording_file = models.FileField(
+        upload_to='livesmart_recordings/',
+        blank=True,
+        null=True,
+        verbose_name=_('Файл записи')
     )
     status = models.CharField(
         max_length=20,
@@ -185,6 +192,12 @@ class LiveSmartRecording(models.Model):
     file_url = models.URLField(
         blank=True,
         verbose_name=_('Ссылка на файл')
+    )
+    file = models.FileField(
+        upload_to='livesmart_recordings/',
+        blank=True,
+        null=True,
+        verbose_name=_('Файл записи')
     )
     file_size = models.BigIntegerField(
         default=0,
