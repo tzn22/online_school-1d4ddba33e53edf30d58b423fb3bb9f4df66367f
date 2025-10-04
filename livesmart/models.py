@@ -1,4 +1,3 @@
-# livesmart/models.py
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
@@ -90,6 +89,7 @@ class LiveSmartRoom(models.Model):
         verbose_name = _('Комната LiveSmart')
         verbose_name_plural = _('Комнаты LiveSmart')
         ordering = ['-created_at']
+        app_label = 'livesmart'  # ← ДОБАВИЛИ ЭТО!
         indexes = [
             models.Index(fields=['lesson', 'status']),
             models.Index(fields=['room_id']),
@@ -157,6 +157,7 @@ class LiveSmartParticipant(models.Model):
         verbose_name_plural = _('Участники LiveSmart')
         unique_together = ['room', 'user']
         ordering = ['role', 'joined_at']
+        app_label = 'livesmart'  # ← ДОБАВИЛИ ЭТО!
         indexes = [
             models.Index(fields=['room', 'user']),
             models.Index(fields=['role']),
@@ -235,6 +236,7 @@ class LiveSmartRecording(models.Model):
         verbose_name = _('Запись LiveSmart')
         verbose_name_plural = _('Записи LiveSmart')
         ordering = ['-created_at']
+        app_label = 'livesmart'  # ← ДОБАВИЛИ ЭТО!
         indexes = [
             models.Index(fields=['room', 'created_at']),
             models.Index(fields=['recording_id']),
@@ -290,6 +292,7 @@ class LiveSmartSettings(models.Model):
         verbose_name = _('Настройки LiveSmart')
         verbose_name_plural = _('Настройки LiveSmart')
         ordering = ['-created_at']
+        app_label = 'livesmart'  # ← ДОБАВИЛИ ЭТО!
         indexes = [
             models.Index(fields=['user', 'created_at']),
             models.Index(fields=['api_key']),
