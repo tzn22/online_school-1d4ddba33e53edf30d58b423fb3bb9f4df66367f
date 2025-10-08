@@ -1,4 +1,5 @@
 from rest_framework import generics, status
+from .filters import NotificationFilter, NotificationTemplateFilter
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -36,7 +37,7 @@ class NotificationListView(generics.ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['notification_type', 'channels', 'is_read']
+    filterset_class = NotificationFilter
     ordering_fields = ['created_at', 'is_read']
     ordering = ['-created_at']
     
@@ -75,7 +76,7 @@ class NotificationTemplateListView(generics.ListCreateAPIView):
     serializer_class = NotificationTemplateSerializer
     permission_classes = [IsAuthenticated, CanViewNotificationTemplates]  # ← Исправлено!
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['notification_type', 'channels']
+    filterset_class = NotificationTemplateFilter
     search_fields = ['name', 'title_template', 'message_template']
     ordering_fields = ['name', 'created_at']
     ordering = ['-created_at']
