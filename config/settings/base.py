@@ -75,7 +75,7 @@ INSTALLED_APPS = [
     'notifications',
     'feedback',
     'crm',
-    'admin_panel',
+    'ai_trainer',
 ]
 
 MIDDLEWARE = [
