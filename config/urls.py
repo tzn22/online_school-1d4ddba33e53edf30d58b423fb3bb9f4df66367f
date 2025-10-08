@@ -35,6 +35,8 @@ urlpatterns = [
     path('api/notifications/', include('notifications.urls')),
     path('api/feedback/', include('feedback.urls')),
     path('api/crm/', include('crm.urls')),
+    path('api/ai_trainer/', include('ai_trainer.urls')),
+    path('api/livesmart/', include('livesmart.urls')),
 ]
 
 # Static and media files in development

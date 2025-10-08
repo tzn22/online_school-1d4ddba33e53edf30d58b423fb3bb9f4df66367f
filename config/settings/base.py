@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'feedback',
     'crm',
     'ai_trainer',
+    'livesmart',
 ]
 
 MIDDLEWARE = [
