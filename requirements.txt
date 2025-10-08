@@ -51,3 +51,5 @@ sphinx-rtd-theme==2.0.*
 
 # Database
 dj-database-url==2.1.*
+
+openai
