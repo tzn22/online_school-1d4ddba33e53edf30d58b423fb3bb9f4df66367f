@@ -52,6 +52,7 @@ def notify_lesson_created(sender, instance, created, **kwargs):
                 except Exception as e:
                     print(f"Ошибка отправки email: {e}")
 
+
 @receiver(m2m_changed, sender=Group.students.through)
 def notify_student_added_to_group(sender, instance, action, pk_set, **kwargs):
     """Уведомление о добавлении студента в группу"""

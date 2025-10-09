@@ -60,6 +60,7 @@ from .views import (
     get_lesson_materials_stats,
     get_student_progress_dashboard
 )
+app_name = 'courses'
 
 urlpatterns = [
     # Курсы

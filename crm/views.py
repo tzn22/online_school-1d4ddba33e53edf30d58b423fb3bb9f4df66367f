@@ -103,7 +103,7 @@ class AnalyticsReportDetailView(generics.RetrieveAPIView):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminOrManager])
-def convert_lead(request, lead_id):
+def convert_lead(request, lead_id):  # Это работает, если lead_id передается через URL
     """Конвертация лида в студента"""
     try:
         lead = Lead.objects.get(id=lead_id)
@@ -127,7 +127,7 @@ def convert_lead(request, lead_id):
         return Response({
             'error': str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
-
+    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminOrManager])
 def student_performance(request, student_id):

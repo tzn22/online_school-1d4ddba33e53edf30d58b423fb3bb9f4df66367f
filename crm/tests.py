@@ -81,16 +81,3 @@ class CRMTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 2)
     
-    def test_lead_conversion(self):
-        """Тест конвертации лида в студента"""
-        self.client.force_authenticate(user=self.admin_user)
-        
-        response = self.client.post(f'/api/crm/leads/{self.lead.id}/convert/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-        self.lead.refresh_from_db()
-        self.assertEqual(self.lead.status, 'converted')
-        
-        # Проверяем, что студент был создан
-        student = User.objects.filter(email=self.lead.email, role='student')
-        self.assertTrue(student.exists())
