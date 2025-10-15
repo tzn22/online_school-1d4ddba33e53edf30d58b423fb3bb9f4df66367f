@@ -61,11 +61,18 @@ class LanguageTestAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'created_at']
     search_fields = ['title', 'description']
 
+from django.utils.html import format_html
 @admin.register(TestQuestion)
 class TestQuestionAdmin(admin.ModelAdmin):
-    list_display = ['test', 'question_text', 'question_type', 'points']
-    list_filter = ['test', 'question_type']
-    search_fields = ['question_text', 'test__title']
+    list_display = ('id', 'test', 'question_text', 'question_type', 'points', 'image_preview')
+    list_filter = ('question_type', 'test')
+    search_fields = ('question_text',)
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="80" />', obj.image.url)
+        return "—"
+    image_preview.short_description = 'Превью'
 
 @admin.register(TestOption)
 class TestOptionAdmin(admin.ModelAdmin):

@@ -100,87 +100,77 @@ class StudentProfile(models.Model):
         return f"Профиль {self.student.get_full_name() or self.student.username}"
 
 class TeacherProfile(models.Model):
-    """Расширенный профиль преподавателя"""
-    teacher = models.OneToOneField(
+    """Профиль преподавателя"""
+    user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name='teacher_profile',
-        limit_choices_to={'role': 'teacher'},
-        verbose_name=_('Преподаватель')
-    )
-    
-    # Образование
-    degree = models.CharField(
-        max_length=100,
         blank=True,
-        verbose_name=_('Ученая степень')
+        null=True,
+        verbose_name='Пользователь'
     )
-    university = models.CharField(
-        max_length=255,
+    full_name = models.CharField(max_length=255, blank=True, null=True, verbose_name='ФИО')
+    description = models.TextField(blank=True, verbose_name='Описание')
+    photo = models.ImageField(
+        upload_to='teachers/photos/',
         blank=True,
-        verbose_name=_('Университет')
+        null=True,
+        verbose_name='Фото'
     )
-    specialization = models.CharField(
-        max_length=255,
+    phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон')
+    email = models.EmailField(blank=True, verbose_name='Email')
+
+    # Зарплата с возможностью выбора единицы измерения
+    SALARY_TYPE_CHOICES = [
+        ('hour', 'В час'),
+        ('day', 'В день'),
+        ('month', 'В месяц'),
+    ]
+    salary = models.DecimalField(
+        max_digits=10,
         blank=True,
-        verbose_name=_('Специализация')
+        null=True,
+        decimal_places=2,
+        verbose_name='Зарплата'
     )
-    
-    # Опыт работы
-    years_of_experience = models.PositiveIntegerField(
-        default=0,
-        verbose_name=_('Лет опыта')
-    )
-    teaching_experience = models.TextField(
+    salary_type = models.CharField(
+        max_length=10,
+        choices=SALARY_TYPE_CHOICES,
+        default='hour',
         blank=True,
-        verbose_name=_('Опыт преподавания')
+        null=True,
+        verbose_name='Тип зарплаты'
     )
-    
-    # Языки
-    languages_spoken = models.JSONField(
+
+    # История зарплат
+    salary_history = models.JSONField(
         default=list,
         blank=True,
-        verbose_name=_('Знание языков')
+        verbose_name='История зарплат (список записей: {"дата": "...", "сумма": ..., "тип": ...})'
     )
-    certificates = models.JSONField(
-        default=list,
-        blank=True,
-        verbose_name=_('Сертификаты')
-    )
-    
-    # Предметы
-    subjects = models.JSONField(
-        default=list,
-        blank=True,
-        verbose_name=_('Предметы преподавания')
-    )
-    teaching_methods = models.TextField(
-        blank=True,
-        verbose_name=_('Методики преподавания')
-    )
-    
-    # Доступность
-    available_hours = models.JSONField(
-        default=dict,
-        blank=True,
-        verbose_name=_('Доступное время')
-    )
-    
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_('Дата создания')
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_('Дата обновления')
-    )
-    
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+
     class Meta:
-        verbose_name = _('Профиль преподавателя')
-        verbose_name_plural = _('Профили преподавателей')
-    
+        verbose_name = 'Профиль преподавателя'
+        verbose_name_plural = 'Профили преподавателей'
+
     def __str__(self):
-        return f"Профиль {self.teacher.get_full_name() or self.teacher.username}"
+        return f"{self.full_name} (Преподаватель)"
+
+    def update_salary(self, new_amount, salary_type=None):
+        """Обновление зарплаты с сохранением истории"""
+        if salary_type:
+            self.salary_type = salary_type
+        self.salary_history.append({
+            "дата": str(self.updated_at),
+            "сумма": float(new_amount),
+            "тип": self.salary_type,
+        })
+        self.salary = new_amount
+        self.save()
+
 
 class Lead(models.Model):
     """Потенциальный клиент (лид)"""

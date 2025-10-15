@@ -156,12 +156,16 @@ class TestOptionSerializer(serializers.ModelSerializer):
         model = TestOption
         fields = ['id', 'option_text', 'is_correct']
 
+from rest_framework import serializers
+from .models import TestQuestion
+
 class TestQuestionSerializer(serializers.ModelSerializer):
-    options = TestOptionSerializer(many=True, read_only=True)
-    
+    image = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = TestQuestion
-        fields = ['id', 'test', 'question_text', 'question_type', 'correct_answer', 'points', 'options']
+        fields = ['id', 'test', 'question_text', 'image', 'question_type', 'correct_answer', 'points']
+
 
 class LanguageTestSerializer(serializers.ModelSerializer):
     class Meta:

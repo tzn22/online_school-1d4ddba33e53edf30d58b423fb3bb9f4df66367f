@@ -186,14 +186,25 @@ class LanguageTest(models.Model):
         verbose_name = 'Языковой тест'
         verbose_name_plural = 'Языковые тесты'
 
+from django.db import models
+
 class TestQuestion(models.Model):
     """Вопрос теста"""
     test = models.ForeignKey(
-        LanguageTest,
+        'LanguageTest',
         on_delete=models.CASCADE,
         related_name='questions'
     )
     question_text = models.TextField(verbose_name='Текст вопроса')
+
+    # ✅ Новое поле для изображения
+    image = models.ImageField(
+        upload_to='test_questions/',
+        blank=True,
+        null=True,
+        verbose_name='Изображение к вопросу'
+    )
+
     question_type = models.CharField(
         max_length=20,
         choices=[
@@ -205,10 +216,14 @@ class TestQuestion(models.Model):
     )
     correct_answer = models.TextField(verbose_name='Правильный ответ')
     points = models.PositiveIntegerField(default=1, verbose_name='Баллы')
-    
+
     class Meta:
         verbose_name = 'Вопрос теста'
         verbose_name_plural = 'Вопросы теста'
+
+    def __str__(self):
+        return f"Вопрос #{self.pk} ({self.test})"
+
 
 class TestOption(models.Model):
     """Вариант ответа для вопроса теста"""

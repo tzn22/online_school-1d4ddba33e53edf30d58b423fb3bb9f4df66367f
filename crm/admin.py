@@ -19,18 +19,9 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 @admin.register(TeacherProfile)
 class TeacherProfileAdmin(admin.ModelAdmin):
-    list_display = [
-        'teacher', 'degree', 'university', 'years_of_experience', 
-        'created_at'
-    ]
-    list_filter = [
-        'degree', 'years_of_experience', 'created_at'
-    ]
-    search_fields = [
-        'teacher__username', 'teacher__email', 'teacher__first_name', 
-        'teacher__last_name', 'university', 'specialization'
-    ]
-    readonly_fields = ['created_at', 'updated_at']
+    list_display = ('full_name', 'phone', 'email', 'salary', 'salary_type', 'created_at')
+    search_fields = ('full_name', 'phone', 'email')
+    list_filter = ('salary_type', 'created_at')
 
 @admin.register(Lead)
 class LeadAdmin(admin.ModelAdmin):
