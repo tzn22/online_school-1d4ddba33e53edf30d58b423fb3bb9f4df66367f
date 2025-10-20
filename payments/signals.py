@@ -1,10 +1,78 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
+
 from .models import Payment, Subscription, Invoice, Refund
 from accounts.models import User
+from courses.models import Group, StudentProgress
 
+
+# === 1️⃣ Автозачисление студента после успешной оплаты ===
+@receiver(post_save, sender=Payment)
+def enroll_student_after_payment(sender, instance, created, **kwargs):
+    """Автоматическая запись студента на курс после успешной оплаты"""
+    payment = instance
+
+    if payment.status != 'paid':
+        return  # Только при успешной оплате
+
+    student = payment.student
+    course = payment.course
+    group = getattr(payment, 'group', None)
+
+    # === Добавляем студента в группу ===
+    if group:
+        if student not in group.students.all():
+            group.students.add(student)
+            print(f"✅ Студент {student} добавлен в группу {group.title}")
+
+    # === Создаём подписку, если нет активной ===
+    if not Subscription.objects.filter(student=student, course=course, is_active=True).exists():
+        sub = Subscription.objects.create(
+            student=student,
+            course=course,
+            group=group,
+            start_date=timezone.now().date(),
+            end_date=(timezone.now() + timedelta(days=90)).date(),
+            is_active=True
+        )
+        print(f"✅ Подписка создана для {student} на курс {course.title}")
+
+    # === Создаём прогресс студента ===
+    StudentProgress.objects.get_or_create(
+        student=student,
+        course=course,
+        defaults={'completed_topics': [], 'test_results': {}}
+    )
+
+    # === Отправляем уведомление студенту ===
+    if student.email:
+        try:
+            subject = 'Вы зачислены на курс!'
+            message = f'''
+            Здравствуйте, {student.get_full_name() or student.username}!
+            
+            Ваш платеж успешно обработан, и вы зачислены на курс "{course.title}".
+            Период обучения: 3 месяца с момента оплаты.
+            
+            С уважением,
+            Онлайн-школа
+            '''
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [student.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            print(f"Ошибка отправки email: {e}")
+
+
+# === 2️⃣ Уведомления по статусу платежа ===
 @receiver(post_save, sender=Payment)
 def notify_payment_status(sender, instance, created, **kwargs):
     """Уведомление о статусе платежа"""
@@ -59,6 +127,8 @@ def notify_payment_status(sender, instance, created, **kwargs):
             except Exception as e:
                 print(f"Ошибка отправки email: {e}")
 
+
+# === 3️⃣ Уведомление о создании подписки ===
 @receiver(post_save, sender=Subscription)
 def notify_subscription_created(sender, instance, created, **kwargs):
     """Уведомление о создании подписки"""
@@ -87,6 +157,8 @@ def notify_subscription_created(sender, instance, created, **kwargs):
             except Exception as e:
                 print(f"Ошибка отправки email: {e}")
 
+
+# === 4️⃣ Уведомление о создании счета ===
 @receiver(post_save, sender=Invoice)
 def notify_invoice_created(sender, instance, created, **kwargs):
     """Уведомление о создании счета"""
@@ -117,11 +189,12 @@ def notify_invoice_created(sender, instance, created, **kwargs):
         except Exception as e:
             print(f"Ошибка отправки email: {e}")
 
+
+# === 5️⃣ Уведомление администраторам о возврате ===
 @receiver(post_save, sender=Refund)
 def notify_refund_request(sender, instance, created, **kwargs):
     """Уведомление о запросе возврата"""
     if created:
-        # Уведомляем администратора
         admins = User.objects.filter(role='admin')
         for admin in admins:
             if admin.email:
