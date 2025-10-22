@@ -48,7 +48,7 @@ class TeacherProfileListCreateView(generics.ListCreateAPIView):
     serializer_class = TeacherProfileSerializer
     permission_classes = [IsAuthenticated, IsAdminOrManager]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['teacher']
+    filterset_fields = ['salary_type', 'salary']
     search_fields = ['teacher__username', 'teacher__email', 'teacher__first_name', 'teacher__last_name']
     ordering_fields = ['created_at', 'updated_at']
 
