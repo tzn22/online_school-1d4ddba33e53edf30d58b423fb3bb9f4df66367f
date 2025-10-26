@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Course, Group, Lesson, Attendance, Badge, StudentBadge, StudentProgress, TestResult, VideoLesson, LessonRecording, MeetingParticipant, Homework, HomeworkSubmission, LessonMaterial, Achievement, StudentAchievement, SupportTicket, TicketMessage
 
 @admin.register(Course)
@@ -27,11 +28,31 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ['title', 'lesson_type', 'teacher', 'start_time', 'duration_minutes', 'is_completed']
+    list_display = ['title', 'lesson_type', 'teacher', 'start_time', 'duration_minutes', 'is_completed', 'ai_trainer_button']
     list_filter = ['lesson_type', 'teacher', 'is_completed', 'start_time']
     search_fields = ['title', 'description']
     readonly_fields = ['created_at', 'updated_at', 'duration_minutes']
     date_hierarchy = 'start_time'
+    
+    def ai_trainer_button(self, obj):
+        # Проверяем, есть ли поле has_ai_trainer, если нет - просто кнопка создания
+        if hasattr(obj, 'has_ai_trainer'):
+            if obj.has_ai_trainer:
+                return format_html(
+                    '<a class="button" href="{}" style="background-color: #4CAF50; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Сгенерировать ИИ-вопросы</a>',
+                    f'../generate-ai-trainer/{obj.id}/'
+                )
+            else:
+                return format_html(
+                    '<a class="button" href="{}" style="background-color: #2196F3; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Создать ИИ-тренажер</a>',
+                    f'../generate-ai-trainer/{obj.id}/'
+                )
+        else:
+            return format_html(
+                '<a class="button" href="{}" style="background-color: #2196F3; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Создать ИИ-тренажер</a>',
+                f'../generate-ai-trainer/{obj.id}/'
+            )
+    ai_trainer_button.short_description = 'ИИ-тренажер'
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
@@ -106,10 +127,30 @@ class HomeworkSubmissionAdmin(admin.ModelAdmin):
 
 @admin.register(LessonMaterial)
 class LessonMaterialAdmin(admin.ModelAdmin):
-    list_display = ['title', 'lesson', 'material_type', 'is_required', 'created_at']
+    list_display = ['title', 'lesson', 'material_type', 'is_required', 'ai_trainer_button', 'created_at']
     list_filter = ['material_type', 'is_required', 'created_at']
     search_fields = ['title', 'lesson__title']
     readonly_fields = ['created_at']
+    
+    def ai_trainer_button(self, obj):
+        # Проверяем, есть ли поле has_ai_trainer, если нет - просто кнопка создания
+        if hasattr(obj, 'has_ai_trainer'):
+            if obj.has_ai_trainer:
+                return format_html(
+                    '<a class="button" href="{}" style="background-color: #4CAF50; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Сгенерировать ИИ-вопросы</a>',
+                    f'../generate-ai-trainer/{obj.id}/'
+                )
+            else:
+                return format_html(
+                    '<a class="button" href="{}" style="background-color: #2196F3; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Создать ИИ-тренажер</a>',
+                    f'../generate-ai-trainer/{obj.id}/'
+                )
+        else:
+            return format_html(
+                '<a class="button" href="{}" style="background-color: #2196F3; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Создать ИИ-тренажер</a>',
+                f'../generate-ai-trainer/{obj.id}/'
+            )
+    ai_trainer_button.short_description = 'ИИ-тренажер'
 
 @admin.register(Achievement)
 class AchievementAdmin(admin.ModelAdmin):

@@ -123,7 +123,7 @@ class Lesson(models.Model):
         ('group', _('Групповое занятие')),
         ('individual', _('Индивидуальное занятие')),
     ]
-    
+    has_ai_trainer = models.BooleanField(default=False, verbose_name=_('Есть ИИ-тренажер'))
     group = models.ForeignKey(
         Group,
         on_delete=models.CASCADE,
@@ -646,6 +646,7 @@ class HomeworkSubmission(models.Model):
 
 # 3. Модель материалов урока
 class LessonMaterial(models.Model):
+    has_ai_trainer = models.BooleanField(default=False, verbose_name=_('Есть ИИ-тренажер'))
     MATERIAL_TYPE_CHOICES = [
         ('pdf', 'PDF документ'),
         ('doc', 'Документ'),
