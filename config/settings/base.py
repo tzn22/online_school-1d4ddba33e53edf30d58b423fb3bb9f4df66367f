@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     
     # Local apps
     'accounts',
+    'ai_trainer',
     'courses',
     'payments',
     'chat',

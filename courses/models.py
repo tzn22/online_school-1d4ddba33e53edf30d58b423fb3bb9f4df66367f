@@ -645,8 +645,10 @@ class HomeworkSubmission(models.Model):
         ordering = ['-submitted_at']
 
 # 3. Модель материалов урока
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 class LessonMaterial(models.Model):
-    has_ai_trainer = models.BooleanField(default=False, verbose_name=_('Есть ИИ-тренажер'))
     MATERIAL_TYPE_CHOICES = [
         ('pdf', 'PDF документ'),
         ('doc', 'Документ'),
@@ -655,50 +657,54 @@ class LessonMaterial(models.Model):
         ('audio', 'Аудио'),
         ('image', 'Изображение'),
         ('link', 'Ссылка'),
+        ('ai_trainer', 'ИИ-тренажёр'),
     ]
-    
+
     lesson = models.ForeignKey(
-        Lesson,
+        'Lesson',
         on_delete=models.CASCADE,
         related_name='materials',
-        verbose_name='Занятие'
+        verbose_name=_('Занятие')
     )
-    title = models.CharField(
-        max_length=255,
-        verbose_name='Название материала'
-    )
+    title = models.CharField(max_length=255, verbose_name=_('Название материала'))
     material_type = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=MATERIAL_TYPE_CHOICES,
-        verbose_name='Тип материала'
+        verbose_name=_('Тип материала')
     )
     file = models.FileField(
         upload_to='lesson_materials/',
         blank=True,
         null=True,
-        verbose_name='Файл'
+        verbose_name=_('Файл')
     )
-    link = models.URLField(
+    link = models.URLField(blank=True, null=True, verbose_name=_('Ссылка'))
+    description = models.TextField(blank=True, verbose_name=_('Описание'))
+    is_required = models.BooleanField(default=False, verbose_name=_('Обязательный материал'))
+    ai_trainer_session = models.ForeignKey(
+        'ai_trainer.AITrainingSession',
+        on_delete=models.SET_NULL,
         blank=True,
-        verbose_name='Ссылка'
+        null=True,
+        verbose_name=_('Привязанный ИИ-тренажёр'),
+        help_text=_('Выберите, если этот материал связан с конкретным AI тренажёром')
     )
-    description = models.TextField(
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Дата загрузки'))
+    ai_trainer_prompt = models.ForeignKey(
+        'ai_trainer.AITrainerPrompt',
+        on_delete=models.SET_NULL,
         blank=True,
-        verbose_name='Описание'
+        null=True,
+        verbose_name=_('Промпт ИИ-тренажёра'),
+        help_text=_('Позволяет выбрать конкретный промпт для данного материала'),
     )
-    is_required = models.BooleanField(
-        default=False,
-        verbose_name='Обязательный материал'
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата загрузки'
-    )
-    
     class Meta:
-        verbose_name = 'Материал урока'
-        verbose_name_plural = 'Материалы урока'
+        verbose_name = _('Материал урока')
+        verbose_name_plural = _('Материалы урока')
         ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.get_material_type_display()})"
 
 # 4. Модель достижений (улучшенная система бейджей)
 class Achievement(models.Model):

@@ -125,32 +125,39 @@ class HomeworkSubmissionAdmin(admin.ModelAdmin):
     search_fields = ['student__username', 'homework__title']
     readonly_fields = ['submitted_at']
 
+from django.contrib import admin
+from django.utils.html import format_html
+from .models import LessonMaterial
+
+
 @admin.register(LessonMaterial)
 class LessonMaterialAdmin(admin.ModelAdmin):
     list_display = ['title', 'lesson', 'material_type', 'is_required', 'ai_trainer_button', 'created_at']
     list_filter = ['material_type', 'is_required', 'created_at']
     search_fields = ['title', 'lesson__title']
     readonly_fields = ['created_at']
-    
+    autocomplete_fields = ['lesson', 'ai_trainer_session']
+
     def ai_trainer_button(self, obj):
-        # Проверяем, есть ли поле has_ai_trainer, если нет - просто кнопка создания
-        if hasattr(obj, 'has_ai_trainer'):
-            if obj.has_ai_trainer:
+        if obj.material_type == 'ai_trainer':
+            if obj.ai_trainer_prompt:
                 return format_html(
-                    '<a class="button" href="{}" style="background-color: #4CAF50; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Сгенерировать ИИ-вопросы</a>',
-                    f'../generate-ai-trainer/{obj.id}/'
+                    '<a class="button" href="{}" '
+                    'style="background-color: #4CAF50; color: white; padding: 5px 10px; '
+                    'text-decoration: none; border-radius: 3px;">Сгенерировать по промпту</a>',
+                    f'/admin/ai_trainer/aitrainingprompt/{obj.ai_trainer_prompt.id}/change/'
                 )
             else:
                 return format_html(
-                    '<a class="button" href="{}" style="background-color: #2196F3; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Создать ИИ-тренажер</a>',
-                    f'../generate-ai-trainer/{obj.id}/'
+                    '<a class="button" href="{}" '
+                    'style="background-color: #2196F3; color: white; padding: 5px 10px; '
+                    'text-decoration: none; border-radius: 3px;">Создать промпт</a>',
+                    '/admin/ai_trainer/aitrainingprompt/add/'
                 )
-        else:
-            return format_html(
-                '<a class="button" href="{}" style="background-color: #2196F3; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">Создать ИИ-тренажер</a>',
-                f'../generate-ai-trainer/{obj.id}/'
-            )
-    ai_trainer_button.short_description = 'ИИ-тренажер'
+        return "—"
+
+    ai_trainer_button.short_description = 'ИИ-тренажёр'
+    ai_trainer_button.allow_tags = True
 
 @admin.register(Achievement)
 class AchievementAdmin(admin.ModelAdmin):
