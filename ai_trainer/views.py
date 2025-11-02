@@ -1,16 +1,24 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import AITrainingSession
-from .serializers import AITrainingSessionSerializer
+from .models import AITrainingSession, AITrainerPrompt
+from courses.models import LessonMaterial
+from .serializers import (
+    AITrainingSessionSerializer,
+    StartSessionSerializer,
+    SubmitAnswersSerializer,
+    AITrainerPromptSerializer
+)
 from .filters import AITrainingSessionFilter
 from .services import AITrainerService
-from .serializers import StartSessionSerializer, SubmitAnswersSerializer
 
+
+# ===== Сессии AI-тренажера =====
 
 class StartTrainingSessionView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -29,6 +37,7 @@ class StartTrainingSessionView(generics.GenericAPIView):
 
         questions = AITrainerService.generate_questions(level=level, count=count)
         session = AITrainingSession.objects.create(user=request.user, questions=questions)
+
         return Response(AITrainingSessionSerializer(session).data, status=status.HTTP_201_CREATED)
 
 
@@ -60,11 +69,46 @@ class SubmitAnswersView(generics.GenericAPIView):
 
 
 class AITrainingSessionListView(generics.ListAPIView):
-    """
-    Получить список сессий с фильтрацией по пользователю, уровню, дате, статусу.
-    """
     queryset = AITrainingSession.objects.all()
     serializer_class = AITrainingSessionSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = AITrainingSessionFilter
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_ai_trainer(request, lesson_material_id):
+    material = get_object_or_404(LessonMaterial, id=lesson_material_id)
+
+    level = request.data.get('level', 'intermediate')
+    count = int(request.data.get('count', 5))
+
+    questions = AITrainerService.generate_questions(level=level, count=count)
+
+    session = AITrainingSession.objects.create(user=request.user, questions=questions)
+
+    material.ai_trainer_session = session
+    material.material_type = 'ai_trainer'
+    material.save()
+
+    return Response(AITrainingSessionSerializer(session).data, status=status.HTTP_201_CREATED)
+
+
+# ===== Промпты для AI-тренажеров =====
+
+class AITrainerPromptListView(generics.ListCreateAPIView):
+    queryset = AITrainerPrompt.objects.all()
+    serializer_class = AITrainerPromptSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['course', 'lesson', 'is_active']
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class AITrainerPromptDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AITrainerPrompt.objects.all()
+    serializer_class = AITrainerPromptSerializer
+    permission_classes = [IsAuthenticated]
